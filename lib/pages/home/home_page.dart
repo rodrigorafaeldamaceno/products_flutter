@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:products_flutter/db/database.dart';
 import 'package:products_flutter/models/menu_choice.dart';
 import 'package:products_flutter/stores/product_store.dart';
@@ -11,14 +12,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final controller = ProductStore();
 
-  final _codeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _priceController = TextEditingController();
 
   Widget cardProduct(Product product) {
     return Card(
       child: ListTile(
+        onTap: () {
+          _openProduct(product: product);
+        },
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.min,
@@ -29,9 +30,10 @@ class _HomePageState extends State<HomePage> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Price: ${product.price.toStringAsFixed(2)}'),
+            Text('Price: \$${product.price.toStringAsFixed(2)}'),
+            Text('Code: ${product.code}'),
             Text(
-                'Code: ${product.code}; Date: ${product.date.year}-${product.date.month}-${product.date.day}'),
+                'Date: ${product.date.year}-${product.date.month}-${product.date.day}')
           ],
         ),
         trailing: Row(
@@ -50,10 +52,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future _addProduct() async {
-    _nameController.clear();
-    _codeController.clear();
-    _priceController.clear();
+  Future _openProduct({Product product}) async {
+    if (product == null) {
+      controller.nameController.clear();
+      controller.codeController.clear();
+      controller.priceController.clear();
+    } else {
+      controller.nameController.text = product.name;
+      controller.codeController.text = product.code.toString();
+      controller.priceController.text = product.price.toString();
+    }
+
+    controller.checkButton();
 
     return showDialog(
       context: context,
@@ -66,11 +76,15 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text('Add product'),
+                  Text(product == null ? 'Add product' : 'Edit product'),
                   TextFormField(
-                    controller: _codeController,
+                    controller: controller.codeController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(labelText: 'Code'),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: (_) {
+                      controller.checkButton();
+                    },
                     validator: (value) {
                       if (value.isEmpty) return 'Required field';
 
@@ -81,8 +95,12 @@ class _HomePageState extends State<HomePage> {
                     height: 10,
                   ),
                   TextFormField(
-                    controller: _nameController,
+                    controller: controller.nameController,
                     decoration: InputDecoration(labelText: 'Name'),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: (_) {
+                      controller.checkButton();
+                    },
                     validator: (value) {
                       if (value.isEmpty) return 'Required field';
 
@@ -93,10 +111,14 @@ class _HomePageState extends State<HomePage> {
                     height: 10,
                   ),
                   TextFormField(
-                    controller: _priceController,
+                    controller: controller.priceController,
                     keyboardType:
                         TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(labelText: 'Price'),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: (_) {
+                      controller.checkButton();
+                    },
                     validator: (value) {
                       if (value.isEmpty) return 'Required field';
 
@@ -106,23 +128,41 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     height: 10,
                   ),
-                  ElevatedButton(
-                    child: Text('Add'),
-                    onPressed: () async {
-                      if (!_formKey.currentState.validate()) return null;
+                  Observer(builder: (_) {
+                    return ElevatedButton(
+                      child: Text(product == null ? 'Add' : 'Edit'),
+                      onPressed: !controller.buttonEnabled
+                          ? null
+                          : () async {
+                              if (!_formKey.currentState.validate())
+                                return null;
 
-                      await controller.addProduct(
-                        Product(
-                          name: _nameController.text,
-                          code: int.tryParse(_codeController.text),
-                          price: double.tryParse(_codeController.text),
-                          date: DateTime.now(),
-                        ),
-                      );
+                              if (product == null) {
+                                await controller.addProduct(
+                                  Product(
+                                    name: controller.nameController.text,
+                                    code: int.tryParse(
+                                        controller.codeController.text),
+                                    price: double.tryParse(
+                                        controller.priceController.text),
+                                    date: DateTime.now(),
+                                  ),
+                                );
+                              } else {
+                                await controller.updateProduct(product.copyWith(
+                                  name: controller.nameController.text,
+                                  code: int.tryParse(
+                                      controller.codeController.text),
+                                  price: double.tryParse(
+                                      controller.priceController.text),
+                                  date: DateTime.now(),
+                                ));
+                              }
 
-                      Navigator.pop(context);
-                    },
-                  )
+                              Navigator.pop(context);
+                            },
+                    );
+                  })
                 ],
               ),
             ),
@@ -159,7 +199,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: _addProduct,
+        onPressed: () {
+          _openProduct();
+        },
       ),
       body: SingleChildScrollView(
         child: StreamBuilder(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 import 'package:products_flutter/db/database.dart';
@@ -10,6 +11,13 @@ abstract class _ProductStoreBase with Store {
   final _dao = MyDatabase.instance.productDAO;
 
   GeneratedColumn orderBy;
+
+  @observable
+  bool buttonEnabled = false;
+
+  final codeController = TextEditingController();
+  final nameController = TextEditingController();
+  final priceController = TextEditingController();
 
   final menuChoices = [
     MenuChoice(
@@ -29,6 +37,15 @@ abstract class _ProductStoreBase with Store {
       orderBy: MyDatabase.instance.products.price,
     ),
   ];
+
+  @action
+  bool checkButton() {
+    buttonEnabled = nameController.text.isNotEmpty &&
+        codeController.text.isNotEmpty &&
+        priceController.text.isNotEmpty;
+
+    return buttonEnabled;
+  }
 
   Stream<List<Product>> find() {
     return _dao.find(orderBy: orderBy);
