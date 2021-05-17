@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:products_flutter/db/database.dart';
+import 'package:products_flutter/models/menu_choice.dart';
 import 'package:products_flutter/stores/product_store.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,12 +19,19 @@ class _HomePageState extends State<HomePage> {
   Widget cardProduct(Product product) {
     return Card(
       child: ListTile(
-        title: Text('${product.name}' ?? 'Product name'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('${product.name}'),
+          ],
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Price: ${product.price.toStringAsFixed(2)}'),
-            Text('Code: ${product.code}'),
+            Text(
+                'Code: ${product.code}; Date: ${product.date.year}-${product.date.month}-${product.date.day}'),
           ],
         ),
         trailing: Row(
@@ -108,6 +116,7 @@ class _HomePageState extends State<HomePage> {
                           name: _nameController.text,
                           code: int.tryParse(_codeController.text),
                           price: double.tryParse(_codeController.text),
+                          date: DateTime.now(),
                         ),
                       );
 
@@ -128,6 +137,25 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Products'),
+        actions: <Widget>[
+          PopupMenuButton<MenuChoice>(
+            onSelected: (choice) {
+              setState(() {
+                controller.orderBy = choice.orderBy;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              return controller.menuChoices.map((choice) {
+                return PopupMenuItem<MenuChoice>(
+                  value: choice,
+                  child: Text(
+                    choice.label,
+                  ),
+                );
+              }).toList();
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),

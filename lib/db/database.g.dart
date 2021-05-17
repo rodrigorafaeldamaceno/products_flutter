@@ -12,11 +12,13 @@ class Product extends DataClass implements Insertable<Product> {
   final String name;
   final double price;
   final int code;
+  final DateTime date;
   Product(
       {this.id,
       @required this.name,
       @required this.price,
-      @required this.code});
+      @required this.code,
+      @required this.date});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -28,6 +30,8 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}price']),
       code: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}code']),
+      date: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}date']),
     );
   }
   @override
@@ -45,6 +49,9 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || code != null) {
       map['code'] = Variable<int>(code);
     }
+    if (!nullToAbsent || date != null) {
+      map['date'] = Variable<DateTime>(date);
+    }
     return map;
   }
 
@@ -55,6 +62,7 @@ class Product extends DataClass implements Insertable<Product> {
       price:
           price == null && nullToAbsent ? const Value.absent() : Value(price),
       code: code == null && nullToAbsent ? const Value.absent() : Value(code),
+      date: date == null && nullToAbsent ? const Value.absent() : Value(date),
     );
   }
 
@@ -66,6 +74,7 @@ class Product extends DataClass implements Insertable<Product> {
       name: serializer.fromJson<String>(json['name']),
       price: serializer.fromJson<double>(json['price']),
       code: serializer.fromJson<int>(json['code']),
+      date: serializer.fromJson<DateTime>(json['date']),
     );
   }
   @override
@@ -76,14 +85,18 @@ class Product extends DataClass implements Insertable<Product> {
       'name': serializer.toJson<String>(name),
       'price': serializer.toJson<double>(price),
       'code': serializer.toJson<int>(code),
+      'date': serializer.toJson<DateTime>(date),
     };
   }
 
-  Product copyWith({int id, String name, double price, int code}) => Product(
+  Product copyWith(
+          {int id, String name, double price, int code, DateTime date}) =>
+      Product(
         id: id ?? this.id,
         name: name ?? this.name,
         price: price ?? this.price,
         code: code ?? this.code,
+        date: date ?? this.date,
       );
   @override
   String toString() {
@@ -91,14 +104,17 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('price: $price, ')
-          ..write('code: $code')
+          ..write('code: $code, ')
+          ..write('date: $date')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => $mrjf($mrjc(
-      id.hashCode, $mrjc(name.hashCode, $mrjc(price.hashCode, code.hashCode))));
+      id.hashCode,
+      $mrjc(name.hashCode,
+          $mrjc(price.hashCode, $mrjc(code.hashCode, date.hashCode)))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -106,7 +122,8 @@ class Product extends DataClass implements Insertable<Product> {
           other.id == this.id &&
           other.name == this.name &&
           other.price == this.price &&
-          other.code == this.code);
+          other.code == this.code &&
+          other.date == this.date);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -114,31 +131,37 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> name;
   final Value<double> price;
   final Value<int> code;
+  final Value<DateTime> date;
   const ProductsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.price = const Value.absent(),
     this.code = const Value.absent(),
+    this.date = const Value.absent(),
   });
   ProductsCompanion.insert({
     this.id = const Value.absent(),
     @required String name,
     @required double price,
     @required int code,
+    @required DateTime date,
   })  : name = Value(name),
         price = Value(price),
-        code = Value(code);
+        code = Value(code),
+        date = Value(date);
   static Insertable<Product> custom({
     Expression<int> id,
     Expression<String> name,
     Expression<double> price,
     Expression<int> code,
+    Expression<DateTime> date,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (price != null) 'price': price,
       if (code != null) 'code': code,
+      if (date != null) 'date': date,
     });
   }
 
@@ -146,12 +169,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       {Value<int> id,
       Value<String> name,
       Value<double> price,
-      Value<int> code}) {
+      Value<int> code,
+      Value<DateTime> date}) {
     return ProductsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       price: price ?? this.price,
       code: code ?? this.code,
+      date: date ?? this.date,
     );
   }
 
@@ -170,6 +195,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (code.present) {
       map['code'] = Variable<int>(code.value);
     }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
     return map;
   }
 
@@ -179,7 +207,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('price: $price, ')
-          ..write('code: $code')
+          ..write('code: $code, ')
+          ..write('date: $date')
           ..write(')'))
         .toString();
   }
@@ -234,8 +263,20 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
+  final VerificationMeta _dateMeta = const VerificationMeta('date');
+  GeneratedDateTimeColumn _date;
   @override
-  List<GeneratedColumn> get $columns => [id, name, price, code];
+  GeneratedDateTimeColumn get date => _date ??= _constructDate();
+  GeneratedDateTimeColumn _constructDate() {
+    return GeneratedDateTimeColumn(
+      'date',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, name, price, code, date];
   @override
   $ProductsTable get asDslTable => this;
   @override
@@ -267,6 +308,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           _codeMeta, code.isAcceptableOrUnknown(data['code'], _codeMeta));
     } else if (isInserting) {
       context.missing(_codeMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date'], _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
     }
     return context;
   }

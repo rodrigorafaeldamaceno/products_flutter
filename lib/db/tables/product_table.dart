@@ -6,4 +6,5 @@ class Products extends Table {
   TextColumn get name => text()();
   RealColumn get price => real()();
   IntColumn get code => integer()();
+  DateTimeColumn get date => dateTime()();
 }

@@ -36,7 +36,7 @@ class MyDatabase extends _$MyDatabase {
   // you should bump this number whenever you change or add a table definition. Migrations
   // are covered later in this readme.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -50,6 +50,9 @@ class MyDatabase extends _$MyDatabase {
       onUpgrade: (Migrator m, int from, int to) async {
         print('old version: $from');
         print('to version: $to');
+        if (from == 1) {
+          await m.addColumn(products, products.date);
+        }
       },
     );
   }

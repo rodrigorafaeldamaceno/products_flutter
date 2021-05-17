@@ -9,8 +9,15 @@ part 'product_dao.g.dart';
 class ProductDAO extends DatabaseAccessor<MyDatabase> with _$ProductDAOMixin {
   ProductDAO(MyDatabase db) : super(db);
 
-  Stream<List<Product>> find() {
-    return (select(products).watch());
+  Stream<List<Product>> find({GeneratedColumn orderBy}) {
+    return (select(products)
+          ..orderBy([
+            (u) => OrderingTerm(
+                  expression: orderBy ?? products.name,
+                  mode: OrderingMode.asc,
+                ),
+          ]))
+        .watch();
   }
 
   Future addProduct(Product product) {
