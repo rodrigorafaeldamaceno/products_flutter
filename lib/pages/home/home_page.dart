@@ -32,8 +32,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text('Price: \$${product.price.toStringAsFixed(2)}'),
             Text('Code: ${product.code}'),
-            Text(
-                'Date: ${product.date.year}-${product.date.month}-${product.date.day}')
+            Text('Date: ${product.date}')
           ],
         ),
         trailing: Row(
