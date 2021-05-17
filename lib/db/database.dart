@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:moor/moor.dart';
-import 'package:moor_ffi/moor_ffi.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +9,7 @@ import 'package:products_flutter/db/tables/user_table.dart';
 import 'dao/product/product_dao.dart';
 import 'dao/user/user_dao.dart';
 import 'tables/product_table.dart';
+import 'package:moor/ffi.dart';
 
 part 'database.g.dart';
 

@@ -13,22 +13,21 @@ class Product extends DataClass implements Insertable<Product> {
   final double price;
   final int code;
   Product(
-      {@required this.id,
+      {this.id,
       @required this.name,
       @required this.price,
       @required this.code});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
-    final doubleType = db.typeSystem.forDartType<double>();
     return Product(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
-      price:
-          doubleType.mapFromDatabaseResponse(data['${effectivePrefix}price']),
-      code: intType.mapFromDatabaseResponse(data['${effectivePrefix}code']),
+      id: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      price: const RealType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}price']),
+      code: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}code']),
     );
   }
   @override
@@ -101,7 +100,7 @@ class Product extends DataClass implements Insertable<Product> {
   int get hashCode => $mrjf($mrjc(
       id.hashCode, $mrjc(name.hashCode, $mrjc(price.hashCode, code.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Product &&
           other.id == this.id &&
@@ -195,7 +194,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
+    return GeneratedIntColumn('id', $tableName, true,
         hasAutoIncrement: true, declaredAsPrimaryKey: true);
   }
 
@@ -289,15 +288,14 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
 class User extends DataClass implements Insertable<User> {
   final int id;
   final String name;
-  User({@required this.id, @required this.name});
+  User({this.id, @required this.name});
   factory User.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return User(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
-      name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      id: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name']),
     );
   }
   @override
@@ -352,7 +350,7 @@ class User extends DataClass implements Insertable<User> {
   @override
   int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is User && other.id == this.id && other.name == this.name);
 }
@@ -416,7 +414,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
+    return GeneratedIntColumn('id', $tableName, true,
         hasAutoIncrement: true, declaredAsPrimaryKey: true);
   }
 
