@@ -21,7 +21,11 @@ abstract class _UserStoreBase with Store {
   }
 
   Stream<User> findOne() {
-    return _dao.findOne();
+    try {
+      return _dao.findOne();
+    } catch (e) {
+      return null;
+    }
   }
 
   Future removeAllUsers() {

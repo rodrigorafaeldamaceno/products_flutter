@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:products_flutter/pages/home/home_page.dart';
 import 'package:products_flutter/pages/login/login_page.dart';
+import 'package:products_flutter/pages/splash/splash_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginPage(),
+      home: SplashPage(),
     );
   }
 }
