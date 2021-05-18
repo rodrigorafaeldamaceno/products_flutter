@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:products_flutter/db/database.dart';
 import 'package:products_flutter/models/menu_choice.dart';
+import 'package:products_flutter/pages/login/login_page.dart';
 import 'package:products_flutter/stores/product_store.dart';
+import 'package:products_flutter/stores/user_store.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,8 +13,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final controller = ProductStore();
+  final userStore = UserStore();
 
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Widget cardProduct(Product product) {
     return Card(
@@ -207,7 +215,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Products'),
+        leading: IconButton(
+          onPressed: () {
+            userStore.removeAllUsers();
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+              (route) => false,
+            );
+          },
+          icon: Icon(Icons.logout),
+        ),
+        title: StreamBuilder(
+          stream: userStore.findOne(),
+          builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+            if (!snapshot.hasData) return Container();
+
+            return Text(snapshot.data.name ?? '');
+          },
+        ),
         actions: <Widget>[
           PopupMenuButton<MenuChoice>(
             onSelected: (choice) {

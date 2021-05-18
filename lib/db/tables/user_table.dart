@@ -4,4 +4,5 @@ import 'package:moor_flutter/moor_flutter.dart';
 class Users extends Table {
   IntColumn get id => integer().nullable().autoIncrement()();
   TextColumn get name => text()();
+  TextColumn get password => text()();
 }

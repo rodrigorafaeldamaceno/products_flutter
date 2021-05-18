@@ -375,7 +375,8 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
 class User extends DataClass implements Insertable<User> {
   final int id;
   final String name;
-  User({this.id, @required this.name});
+  final String password;
+  User({this.id, @required this.name, @required this.password});
   factory User.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -383,6 +384,8 @@ class User extends DataClass implements Insertable<User> {
       id: const IntType().mapFromDatabaseResponse(data['${effectivePrefix}id']),
       name: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name']),
+      password: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}password']),
     );
   }
   @override
@@ -394,6 +397,9 @@ class User extends DataClass implements Insertable<User> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    if (!nullToAbsent || password != null) {
+      map['password'] = Variable<String>(password);
+    }
     return map;
   }
 
@@ -401,6 +407,9 @@ class User extends DataClass implements Insertable<User> {
     return UsersCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      password: password == null && nullToAbsent
+          ? const Value.absent()
+          : Value(password),
     );
   }
 
@@ -410,6 +419,7 @@ class User extends DataClass implements Insertable<User> {
     return User(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      password: serializer.fromJson<String>(json['password']),
     );
   }
   @override
@@ -418,55 +428,70 @@ class User extends DataClass implements Insertable<User> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'password': serializer.toJson<String>(password),
     };
   }
 
-  User copyWith({int id, String name}) => User(
+  User copyWith({int id, String name, String password}) => User(
         id: id ?? this.id,
         name: name ?? this.name,
+        password: password ?? this.password,
       );
   @override
   String toString() {
     return (StringBuffer('User(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('password: $password')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
+  int get hashCode =>
+      $mrjf($mrjc(id.hashCode, $mrjc(name.hashCode, password.hashCode)));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is User && other.id == this.id && other.name == this.name);
+      (other is User &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.password == this.password);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> id;
   final Value<String> name;
+  final Value<String> password;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.password = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
     @required String name,
-  }) : name = Value(name);
+    @required String password,
+  })  : name = Value(name),
+        password = Value(password);
   static Insertable<User> custom({
     Expression<int> id,
     Expression<String> name,
+    Expression<String> password,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (password != null) 'password': password,
     });
   }
 
-  UsersCompanion copyWith({Value<int> id, Value<String> name}) {
+  UsersCompanion copyWith(
+      {Value<int> id, Value<String> name, Value<String> password}) {
     return UsersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      password: password ?? this.password,
     );
   }
 
@@ -479,6 +504,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (password.present) {
+      map['password'] = Variable<String>(password.value);
+    }
     return map;
   }
 
@@ -486,7 +514,8 @@ class UsersCompanion extends UpdateCompanion<User> {
   String toString() {
     return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('password: $password')
           ..write(')'))
         .toString();
   }
@@ -517,8 +546,20 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     );
   }
 
+  final VerificationMeta _passwordMeta = const VerificationMeta('password');
+  GeneratedTextColumn _password;
   @override
-  List<GeneratedColumn> get $columns => [id, name];
+  GeneratedTextColumn get password => _password ??= _constructPassword();
+  GeneratedTextColumn _constructPassword() {
+    return GeneratedTextColumn(
+      'password',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, name, password];
   @override
   $UsersTable get asDslTable => this;
   @override
@@ -538,6 +579,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           _nameMeta, name.isAcceptableOrUnknown(data['name'], _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('password')) {
+      context.handle(_passwordMeta,
+          password.isAcceptableOrUnknown(data['password'], _passwordMeta));
+    } else if (isInserting) {
+      context.missing(_passwordMeta);
     }
     return context;
   }

@@ -52,6 +52,7 @@ class MyDatabase extends _$MyDatabase {
         print('to version: $to');
         if (from == 1) {
           await m.addColumn(products, products.date);
+          await m.addColumn(users, users.password);
         }
       },
     );

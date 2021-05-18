@@ -13,15 +13,23 @@ class UserDAO extends DatabaseAccessor<MyDatabase> with _$UserDAOMixin {
     return (select(users).watch());
   }
 
-  Future addProduct(User user) {
+  Future<int> addUser(User user) {
     return into(users).insert(user);
   }
 
-  Future updateProduct(User user) {
+  Future<bool> updateUser(User user) {
     return update(users).replace(user);
   }
 
-  Future removeProduct(int id) {
+  Future removeUser(int id) {
     return (delete(users)..where((user) => user.id.equals(id))).go();
+  }
+
+  Stream<User> findOne() {
+    return (select(users)..limit(1)).watchSingle();
+  }
+
+  Future removeAllUsers() {
+    return (delete(users)).go();
   }
 }
