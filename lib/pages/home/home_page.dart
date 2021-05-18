@@ -30,7 +30,8 @@ class _HomePageState extends State<HomePage> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Price: \$${product.price.toStringAsFixed(2)}'),
+            Text('Price: \$${product.price?.toStringAsFixed(2)}'),
+            Text('Quantity: ${product.quantity ?? 0}'),
             Text('Code: ${product.code}'),
             Text('Date: ${product.date}')
           ],
@@ -56,10 +57,12 @@ class _HomePageState extends State<HomePage> {
       controller.nameController.clear();
       controller.codeController.clear();
       controller.priceController.clear();
+      controller.quantityController.clear();
     } else {
       controller.nameController.text = product.name;
       controller.codeController.text = product.code.toString();
       controller.priceController.text = product.price.toString();
+      controller.quantityController.text = product.quantity.toString();
     }
 
     controller.checkButton();
@@ -72,10 +75,14 @@ class _HomePageState extends State<HomePage> {
             margin: EdgeInsets.all(20),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              child: ListView(
+                shrinkWrap: true,
                 children: <Widget>[
-                  Text(product == null ? 'Add product' : 'Edit product'),
+                  Center(
+                    child: Text(
+                      product == null ? 'Add product' : 'Edit product',
+                    ),
+                  ),
                   TextFormField(
                     controller: controller.codeController,
                     keyboardType: TextInputType.number,
@@ -115,14 +122,31 @@ class _HomePageState extends State<HomePage> {
                         TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(labelText: 'Price'),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onChanged: (_) {
-                      controller.checkButton();
-                    },
-                    validator: (value) {
-                      if (value.isEmpty) return 'Required field';
+                    // onChanged: (_) {
+                    //   controller.checkButton();
+                    // },
+                    // validator: (value) {
+                    //   if (value.isEmpty) return 'Required field';
 
-                      return null;
-                    },
+                    //   return null;
+                    // },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    controller: controller.quantityController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: 'Quantity'),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    // onChanged: (_) {
+                    //   controller.checkButton();
+                    // },
+                    // validator: (value) {
+                    //   if (value.isEmpty) return 'Required field';
+
+                    //   return null;
+                    // },
                   ),
                   SizedBox(
                     height: 10,
@@ -141,10 +165,15 @@ class _HomePageState extends State<HomePage> {
                                   Product(
                                     name: controller.nameController.text,
                                     code: int.tryParse(
-                                        controller.codeController.text),
+                                      controller.codeController.text,
+                                    ),
                                     price: double.tryParse(
-                                        controller.priceController.text),
+                                      controller.priceController.text,
+                                    ),
                                     date: DateTime.now(),
+                                    quantity: int.tryParse(
+                                      controller.quantityController.text,
+                                    ),
                                   ),
                                 );
                               } else {
@@ -155,6 +184,9 @@ class _HomePageState extends State<HomePage> {
                                   price: double.tryParse(
                                       controller.priceController.text),
                                   date: DateTime.now(),
+                                  quantity: int.tryParse(
+                                    controller.quantityController.text,
+                                  ),
                                 ));
                               }
 

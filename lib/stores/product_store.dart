@@ -1,3 +1,4 @@
+import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:moor_flutter/moor_flutter.dart';
@@ -17,7 +18,12 @@ abstract class _ProductStoreBase with Store {
 
   final codeController = TextEditingController();
   final nameController = TextEditingController();
-  final priceController = TextEditingController();
+  final quantityController = TextEditingController();
+  final priceController = MoneyMaskedTextController(
+    precision: 2,
+    initialValue: 0,
+    leftSymbol: '\$',
+  );
 
   final menuChoices = [
     MenuChoice(
@@ -40,9 +46,8 @@ abstract class _ProductStoreBase with Store {
 
   @action
   bool checkButton() {
-    buttonEnabled = nameController.text.isNotEmpty &&
-        codeController.text.isNotEmpty &&
-        priceController.text.isNotEmpty;
+    buttonEnabled =
+        nameController.text.isNotEmpty && codeController.text.isNotEmpty;
 
     return buttonEnabled;
   }

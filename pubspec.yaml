@@ -18,6 +18,7 @@ dependencies:
   path_provider:
   path:
   flutter_mobx: ^2.0.0
+  extended_masked_text: ^2.1.0
 
 dev_dependencies:
   flutter_test:
